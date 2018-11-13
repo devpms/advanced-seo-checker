@@ -21,63 +21,107 @@ const msg = require('./helpers/msg-helper');
 //SSLLabs Integration
 //DOCType Check
 
+const mainIssuesCategories = {
+  errors: 'errors',
+  warnings: 'warnings',
+  notices: 'notices'
+};
+
 module.exports = (options) => {
   const getIssueCategory = (id) => {
     const categories = {
-      'viewport': 'errors',
-      'document-title': 'errors',
-      'duplicate-id': 'errors',
-      'html-has-lang': 'errors',
-      'html-lang-valid': 'errors',
-      'meta-description': 'errors',
-      'render-blocking-resources': 'errors',
-      'unminified-css': 'errors',
-      'unminified-javascript': 'errors',
-      'is-crawlable': 'errors',
-      'hreflang': 'errors',
-      'canonical': 'errors',
-      'errors-in-console': 'errors',
-      'uses-optimized-images': 'errors',
-      'http-status-code': 'errors',
-      'image-alt': 'warnings',
-      'uses-text-compression': 'warnings',
-      'uses-responsive-images': 'warnings',
-      'dom-size': 'warnings',
-      'unused-css-rules': 'warnings',
-      'offscreen-images': 'warnings',
-      'total-byte-weight': 'warnings',
-      'critical-request-chains': 'warnings',
-      'link-text': 'warnings',
-      'external-anchors-use-rel-noopener': 'warnings',
-      'geolocation-on-start': 'warnings',
-      'password-inputs-can-be-pasted-into': 'warnings',
-      'uses-rel-preload': 'warnings',
-      'uses-rel-preconnect': 'warnings',
-      'uses-webp-images': 'notices',
-      'content-width': 'notices',
-      'image-aspect-ratio': 'notices',
-      'deprecations': 'notices',
-      'service-worker': 'notices',
-      'works-offline': 'notices',
-      'appcache-manifest': 'notices',
-      'robots-txt': 'notices',
-      'no-websql': 'notices',
-      'is-on-https': 'notices',
-      'uses-http2': 'notices',
-      'webapp-install-banner': 'notices',
-      'splash-screen': 'notices',
-      'themed-omnibox': 'notices',
-      'redirects-http': 'notices',
-      'redirects': 'notices',
-      'without-javascript': 'notices',
-      'no-mutation-events': 'notices',
-      'no-document-write': 'notices',
-      'no-vulnerable-libraries': 'notices',
-      'notification-on-start': 'notices',
-      'link-name': 'notices',
-      'manifest-short-name-length': 'notices'
+      'doctype': mainIssuesCategories.errors,
+      'viewport': mainIssuesCategories.errors,
+      'meta-viewport': mainIssuesCategories.errors,
+      'document-title': mainIssuesCategories.errors,
+      'duplicate-id': mainIssuesCategories.errors,
+      'html-has-lang': mainIssuesCategories.errors,
+      'content-width': mainIssuesCategories.errors,
+      'valid-lang': mainIssuesCategories.errors,
+      'html-lang-valid': mainIssuesCategories.errors,
+      'meta-description': mainIssuesCategories.errors,
+      'render-blocking-resources': mainIssuesCategories.errors,
+      'unminified-css': mainIssuesCategories.errors,
+      'unminified-javascript': mainIssuesCategories.errors,
+      'is-crawlable': mainIssuesCategories.errors,
+      'hreflang': mainIssuesCategories.errors,
+      'canonical': mainIssuesCategories.errors,
+      'plugins': mainIssuesCategories.errors,
+      'errors-in-console': mainIssuesCategories.errors,
+      'uses-optimized-images': mainIssuesCategories.errors,
+      'geolocation-on-start': mainIssuesCategories.errors,
+      'http-status-code': mainIssuesCategories.errors,
+      'pwa-cross-browser': mainIssuesCategories.errors,
+      'meta-refresh': mainIssuesCategories.errors,
+      'uses-long-cache-ttl': mainIssuesCategories.errors,
+      'managed-focus': mainIssuesCategories.warnings,
+      'offscreen-content-hidden': mainIssuesCategories.warnings,
+      'use-landmarks': mainIssuesCategories.warnings,
+      'visual-order-follows-dom': mainIssuesCategories.warnings,
+      'frame-title': mainIssuesCategories.warnings,
+      'video-caption': mainIssuesCategories.warnings,
+      'video-description': mainIssuesCategories.warnings,
+      'pwa-each-page-has-url': mainIssuesCategories.warnings,
+      'font-display': mainIssuesCategories.warnings,
+      'font-size': mainIssuesCategories.warnings,
+      'heading-levels': mainIssuesCategories.warnings,
+      'image-alt': mainIssuesCategories.warnings,
+      'object-alt': mainIssuesCategories.warnings,
+      'input-image-alt': mainIssuesCategories.warnings,
+      'label': mainIssuesCategories.warnings,
+      'layout-table': mainIssuesCategories.warnings,
+      'uses-text-compression': mainIssuesCategories.warnings,
+      'uses-responsive-images': mainIssuesCategories.warnings,
+      'dom-size': mainIssuesCategories.warnings,
+      'unused-css-rules': mainIssuesCategories.warnings,
+      'offscreen-images': mainIssuesCategories.warnings,
+      'total-byte-weight': mainIssuesCategories.warnings,
+      'critical-request-chains': mainIssuesCategories.warnings,
+      'link-text': mainIssuesCategories.warnings,
+      'external-anchors-use-rel-noopener': mainIssuesCategories.warnings,
+      'password-inputs-can-be-pasted-into': mainIssuesCategories.warnings,
+      'uses-rel-preload': mainIssuesCategories.warnings,
+      'uses-rel-preconnect': mainIssuesCategories.warnings,
+      'uses-webp-images': mainIssuesCategories.warnings,
+      'efficient-animated-content': mainIssuesCategories.warnings,
+      'image-aspect-ratio': mainIssuesCategories.warnings,
+      'logical-tab-order': mainIssuesCategories.warnings,
+      'deprecations': mainIssuesCategories.notices,
+      'service-worker': mainIssuesCategories.notices,
+      'works-offline': mainIssuesCategories.notices,
+      'appcache-manifest': mainIssuesCategories.notices,
+      'robots-txt': mainIssuesCategories.notices,
+      'no-websql': mainIssuesCategories.notices,
+      'is-on-https': mainIssuesCategories.notices,
+      'uses-http2': mainIssuesCategories.notices,
+      'webapp-install-banner': mainIssuesCategories.notices,
+      'splash-screen': mainIssuesCategories.notices,
+      'themed-omnibox': mainIssuesCategories.notices,
+      'redirects-http': mainIssuesCategories.notices,
+      'redirects': mainIssuesCategories.notices,
+      'without-javascript': mainIssuesCategories.notices,
+      'no-mutation-events': mainIssuesCategories.notices,
+      'no-document-write': mainIssuesCategories.notices,
+      'no-vulnerable-libraries': mainIssuesCategories.notices,
+      'notification-on-start': mainIssuesCategories.notices,
+      'link-name': mainIssuesCategories.notices,
+      'manifest-short-name-length': mainIssuesCategories.notices,
+      'pwa-page-transitions': mainIssuesCategories.notices,
+      'color-contrast': mainIssuesCategories.notices,
+      'definition-list': mainIssuesCategories.notices,
+      'dlitem': mainIssuesCategories.notices,
+      'td-headers-attr': mainIssuesCategories.notices,
+      'th-has-data-cells': mainIssuesCategories.notices,
+      'custom-controls-labels': mainIssuesCategories.notices,
+      'custom-controls-roles': mainIssuesCategories.notices,
+      'focus-traps': mainIssuesCategories.notices,
+      'focusable-controls': mainIssuesCategories.notices,
+      'list': mainIssuesCategories.notices,
+      'list-item': mainIssuesCategories.notices,
+      'tab-index': mainIssuesCategories.notices,
+      'structured-data': mainIssuesCategories.notices
     };
-    return categories[id] ? categories[id] : 'notices';
+    return categories[id] ? categories[id] : mainIssuesCategories.notices;
   };
 
   const testTooMuchTextInTitle = (page) => {
@@ -90,22 +134,6 @@ module.exports = (options) => {
     };
   };
 
-  const testDOCType = (body) => {
-    const result = {
-      description: '',
-      weight: 1,
-      value: body.toLowerCase().lastIndexOf('<!doctype html>') !== -1
-    };
-    if (result.value === 0) {
-      result.description = '1 page don\'t have doctype declared';
-    }
-    else {
-      result.description = '0 page don\'t have doctype declared';
-    }
-    result.score = result.value ? 100 : 0;
-    return result;
-  };
-
   const countH1 = ($) => {
     const result = {
       description: '',
@@ -114,8 +142,7 @@ module.exports = (options) => {
     };
     if (result.value === 0) {
       result.description = 'page doesn\'t contain any h1 heading';
-    }
-    else if (result.value > 1) {
+    } else if (result.value > 1) {
       result.description = 'page have more than one H1 tag';
     }
     result.score = result.value === 1 ? 100 : 0;
@@ -125,31 +152,55 @@ module.exports = (options) => {
   const discoverBrokenLinks = (url, body) => {
     const init = (resolve, reject) => {
       const broken = {
-          a: {internal: [], external: []},
-          img: {internal: [], external: []},
-          source: {internal: [], external: []}
+          a: {
+            internal: [],
+            external: []
+          },
+          img: {
+            internal: [],
+            external: []
+          },
+          source: {
+            internal: [],
+            external: []
+          }
         },
         total = {
-          a: {internal: [], external: []},
-          img: {internal: [], external: []},
-          source: {internal: [], external: []}
+          a: {
+            internal: [],
+            external: []
+          },
+          img: {
+            internal: [],
+            external: []
+          },
+          source: {
+            internal: [],
+            external: []
+          }
         };
 
       var htmlChecker = new blc.HtmlChecker({}, {
-        link: function (result) {
+        link: function(result) {
 
           const type = result.internal ? 'internal' : 'external';
           if (!total[result.html.tagName]) {
             msg.appMsg('New tag detected: ' + result.html.tagName);
-            total[result.html.tagName] = {internal: [], external: []};
-            broken[result.html.tagName] = {internal: [], external: []};
+            total[result.html.tagName] = {
+              internal: [],
+              external: []
+            };
+            broken[result.html.tagName] = {
+              internal: [],
+              external: []
+            };
           }
           total[result.html.tagName][type].push(result);
           if (result.broken) {
             broken[result.html.tagName][type].push(result);
           }
         },
-        complete: function (result) {
+        complete: function(result) {
           const res = {
             total: total,
             broken: broken,
@@ -205,21 +256,33 @@ module.exports = (options) => {
   };
 
   const analyzePage = (url, body) => {
-    const $ = cheerio.load(body), page = {};
+    const $ = cheerio.load(body),
+      page = {};
     page.url = url;
     msg.yellowBright('Analyzing: ' + url);
 
     const init = (resolve, reject) => {
 
       page.title = $('title').text() || null;
-      page.headers = {h1: [], h2: [], h3: [], h4: [], h5: [], h6: []}
+      page.headers = {
+        h1: [],
+        h2: [],
+        h3: [],
+        h4: [],
+        h5: [],
+        h6: []
+      }
       page.description = $('meta[name=description]').attr('content') || null;
       page.author = $('meta[name=author]').attr('content') || null;
 
       page.canonical = $('link[rel=canonical]').attr('href') || null;
       page.canonical = page.canonical ? page.canonical.trim().replace('\n', '') : page.canonical;
       page.keywords = $('meta[name=keywords]').attr('content') || null;
-      page.issues = {errors: {}, warnings: {}, notices: {}};
+      page.issues = {
+        errors: {},
+        warnings: {},
+        notices: {}
+      };
       page.scores = {};
       page.metrics = {
         'first-contentful-paint': null,
@@ -235,15 +298,14 @@ module.exports = (options) => {
       };
 
       for (let i = 1; i <= 6; i++) {
-        $('body h' + i).each(function () {
+        $('body h' + i).each(function() {
           const text = $(this).text();
-          page.headers['h' + i].push(text ? text.trim().replace('\n', ''): text);
+          page.headers['h' + i].push(text ? text.trim().replace('\n', '') : text);
         });
       }
       page.h1 = $('body h1:first-child').text().trim().replace('\n', '');
       page.issues.warnings['multiple-h1'] = countH1($);
       page.issues.warnings['too-much-text-in-title'] = testTooMuchTextInTitle(page);
-      page.issues.warnings['doc-type'] = testDOCType(body);
 
       if (options.ignoreInternalPagesIssues) {
         msg.yellow('Ignoring internal issues: ' + url);
@@ -252,7 +314,7 @@ module.exports = (options) => {
 
       // const promises = [discoverBrokenLinks(url, body), createLHAnalyzer(createLHAnalyzer).analyzePage(url)];
       const promises = [createLHAnalyzer(options).analyzePage(url)];
-      Promise.all(promises).then(function (results) {
+      Promise.all(promises).then(function(results) {
         // page.blc = results[0];
         // page.lighthousedata = results[1].lhr;
         page.lighthousedata = results[0].lhr;
@@ -264,18 +326,28 @@ module.exports = (options) => {
         // page.issues.errors['external-broken-images'] = page.blc.externalBrokenImages;
         if (page.lighthousedata.error) {
 
-        }
-        else {
+        } else {
           const seoCategory = page.lighthousedata.categories.seo;
+          const pwaCategory = page.lighthousedata.categories.pwa;
+          const accessibilityCategory = page.lighthousedata.categories.accessibility;
           const bestPracticesCategory = page.lighthousedata.categories['best-practices'];
 
-          const auditsRefs = seoCategory.auditRefs.concat(bestPracticesCategory.auditRefs);
+          const auditsRefs = seoCategory.auditRefs.concat(bestPracticesCategory.auditRefs,
+            pwaCategory.auditRefs, accessibilityCategory.auditRefs);
+
           let mobileFriendlyAudit = {};
+          const restructuredAudits = {};
           for (const auditRef of auditsRefs) {
-            const audit = page.lighthousedata.audits[auditRef.id];
+            const audit = JSON.parse(JSON.stringify(page.lighthousedata.audits[auditRef.id]));
+            if (audit.id === 'mobile-friendly') {
+              mobileFriendlyAudit = audit;
+            } else if (audit.score === null) {
+              continue;
+            }
+            restructuredAudits[audit.id] = restructuredAudits[audit.id] ? restructuredAudits[audit.id] : [];
+            restructuredAudits[audit.id].push(audit);
             audit.weight = auditRef.weight;
             audit.score *= 100;
-            mobileFriendlyAudit = audit.id === 'mobile-friendly' ? audit : mobileFriendlyAudit;
             const issueCategory = getIssueCategory(audit.id);
 
             if (audit.result) {
@@ -293,9 +365,22 @@ module.exports = (options) => {
             delete audit.details;
             delete audit.extendedInfo;
             delete audit.result;
-            page.issues[issueCategory][audit.id] = audit;
           }
+          //Calculate average audi because the same issue could be found under multiple categories
+          for (const auditKey in restructuredAudits) {
+            const audits = restructuredAudits[auditKey];
+            const firstAudit = audits[0];
+            const sum = {weight: 0, score: 0};
+            for(audit of audits){
+              sum.weight += audit.weight;
+              sum.score += audit.score;
+            }
+            firstAudit.weight = sum.weight / audits.length;
+            firstAudit.score = sum.score / audits.length;
 
+            const issueCategory = getIssueCategory(firstAudit.id);
+            page.issues[issueCategory][firstAudit.id] = firstAudit;
+          }
           for (const metricKey in page.metrics) {
             page.metrics[metricKey] = page.lighthousedata.audits[metricKey];
           }
@@ -313,7 +398,7 @@ module.exports = (options) => {
 
         msg.yellow('Analyzing: ' + url + ' was done');
         resolve(page);
-      }).catch(function (err) {
+      }).catch(function(err) {
         msg.error(err)
         reject(err);
       });
@@ -324,13 +409,19 @@ module.exports = (options) => {
   };
 
   const analyzePages = (urls, bodies) => {
-    const summary = {issues: {errors: {}, warnings: {}, notices: {}}};
+    const summary = {
+      issues: {
+        errors: {},
+        warnings: {},
+        notices: {}
+      }
+    };
     const init = (resolve, reject) => {
       const promises = [];
       for (let i = 0; i < urls.length; i++) {
         promises.push(analyzePage(urls[i], bodies[i]));
       }
-      Promise.all(promises).then(function (pages) {
+      Promise.all(promises).then(function(pages) {
         summary.pages = pages;
         testDuplicate('duplicateTitlePages', 'title');
         testDuplicate('duplicateDescPages', 'description');
@@ -339,14 +430,18 @@ module.exports = (options) => {
         calculateIssuesImpact(summary);
         msg.green('All pages were analyzed');
         resolve(summary);
-      }).catch(function (err) {
+      }).catch(function(err) {
         msg.error(err);
         reject(err);
       });
     };
 
     const testDuplicateContent = (urls, bodies) => {
-      summary.issues.errors.duplicateContentPages = {score: 0, weight: 1, impact: 0};
+      summary.issues.errors.duplicateContentPages = {
+        score: 0,
+        weight: 1,
+        impact: 0
+      };
       let numberOfDuplicates = 0;
       const skip = {};
       for (let [firstIndex, first] of urls.entries()) {
@@ -375,7 +470,12 @@ module.exports = (options) => {
 
     const testDuplicate = (skey, pkey) => {
       const list = {};
-      summary.issues.errors[skey] = {score: 0, weight: 1, impact: 0, list: []};
+      summary.issues.errors[skey] = {
+        score: 0,
+        weight: 1,
+        impact: 0,
+        list: []
+      };
       let numberOfDuplicates = 0;
       let trials = 0;
       for (let i = 0; i < summary.pages.length; i++) {
