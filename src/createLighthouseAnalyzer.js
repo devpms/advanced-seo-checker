@@ -1,5 +1,6 @@
 const lighthouse = require('lighthouse');
 const chromeLauncher = require('chrome-launcher');
+const lhConfig = require('./lighthouseConfig');
 const msg = require('./helpers/msg-helper');
 const exec = require('child_process').exec;
 const execSync = require('child_process').execSync;
@@ -7,25 +8,29 @@ const crypto = require('crypto');
 const fs = require('fs');
 
 module.exports = (options) => {
+  const throttling = options.throttling ? options.throttling : lhConfig.throttling.mobileSlow4G;
+
   function launchChromeAndRunLighthouse(url, flags = {}, config = null) {
+
     return chromeLauncher.launch(flags).then(chrome => {
       flags.port = chrome.port;
 
       function hardKillChrome() {
         const hardKillCommand = 'kill -9 ' + chrome.pid;
         exec(hardKillCommand,
-          function (error, stdout, stderr) {
+          function(error, stdout, stderr) {
             console.log('CHROME INSTANCE WAS REMOVED: ' + chrome.pid);
           });
       }
 
       function init(resolve, reject) {
         msg.info('Waiting for Chrome instance to be ready: ' + chrome.pid);
-        setTimeout(function () {
+        setTimeout(function() {
 
+          const options = Object.assign({}, flags, config);
           msg.info('Testing using lighthouse using nodejs');
           //Wait to make sure that chrome instance is there and ready to serve
-          lighthouse(url, flags, config).then(results => {
+          lighthouse(url, options).then(results => {
             // The gathered artifacts are typically removed as they can be quite large (~50MB+)
             delete results.artifacts;
             chrome.kill().then(() => {
@@ -53,12 +58,12 @@ module.exports = (options) => {
 
     function init(resolve, reject) {
       const jsonName = crypto.createHash('md5').update(url).digest('hex') + '.json';
-      var yourscript = exec("lighthouse '" + url + "' --quiet --chrome-flags='--headless' --output=json --output-path=" + jsonName,
+      var yourscript = exec("lighthouse '" + url + "' --throttling.throughputKbps=" + config.throttling.throughputKbps + " --quiet --chrome-flags='--headless' --output=json --output-path=" + jsonName,
         (error, stdout, stderr) => {
           if (error === null) {
             const results = JSON.parse(fs.readFileSync(jsonName, 'utf8'));
             delete results.artifacts;
-            setTimeout(function () {
+            setTimeout(function() {
               msg.info('Deleting ' + jsonName);
               fs.unlink(jsonName);
             }, 1000);
@@ -82,22 +87,23 @@ module.exports = (options) => {
   const analyzePage = (url) => {
     let trialsLimit = 3;
     let lunchingError = {};
+    const config = {
+      throttling: throttling
+    };
     const init = (resolve, reject) => {
       trialsLimit--;
       if (!options.useTerminalOption && trialsLimit === 0) {
         reject(lunchingError);
-      }
-      else if (trialsLimit === 0) {
-        launchChromeAndRunLighthouseViaBash(url, flags).then(results => {
+      } else if (trialsLimit === 0) {
+        launchChromeAndRunLighthouseViaBash(url, flags, config).then(results => {
           resolve(results);
         }).catch((error) => {
           lunchingError = error;
           msg.error(lunchingError);
           reject(error);
         });
-      }
-      else {
-        launchChromeAndRunLighthouse(url, flags).then(results => {
+      } else {
+        launchChromeAndRunLighthouse(url, flags, config).then(results => {
           resolve(results);
         }).catch((error) => {
           lunchingError = error;
@@ -117,9 +123,9 @@ module.exports = (options) => {
       for (let i = 0; i < urls.length; i++) {
         promises.push(analyzePage(urls[i]));
       }
-      Promise.all(promises).then(function (summary) {
+      Promise.all(promises).then(function(summary) {
         resolve(summary);
-      }).catch(function (error) {
+      }).catch(function(error) {
         reject(error);
       });
     };
