@@ -30,7 +30,7 @@ module.exports = (options) => {
           const options = Object.assign({}, flags, config);
           msg.info('Testing using lighthouse using nodejs');
           //Wait to make sure that chrome instance is there and ready to serve
-          lighthouse(url, options).then(results => {
+          lighthouse(url, flags).then(results => {
             // The gathered artifacts are typically removed as they can be quite large (~50MB+)
             delete results.artifacts;
             chrome.kill().then(() => {
@@ -78,8 +78,37 @@ module.exports = (options) => {
     return promise;
   }
 
+  const chromeFlags = [
+    '--disable-gpu',
+    "--no-sandbox",
+    "--headless",
+    '--disable-background-networking',
+    '--safebrowsing-disable-auto-update',
+    '--disable-dev-shm-usage',
+    '--no-default-browser-check',
+    '--process-per-tab',
+    '--new-window',
+    '--disable-notifications',
+    '--disable-desktop-notifications',
+    '--disable-component-update',
+    '--disable-background-downloads',
+    '--disable-add-to-shelf',
+    '--disable-datasaver-prompt',
+    '--disable-domain-reliability',
+    '--autoplay-policy=no-user-gesture-required',
+    '--disable-background-networking',
+    '--disable-sync',
+    '--disable-default-apps',
+    '--mute-audio',
+    '--no-first-run',
+    '--disable-background-timer-throttling',
+    '--disable-client-side-phishing-detection',
+    '--disable-popup-blocking',
+    '--disable-prompt-on-repost',
+    '--enable-automation'
+  ];
   const flags = {
-    chromeFlags: ['--headless', 'no-sandbox'],
+    chromeFlags: chromeFlags,
     handleSIGINT: true,
     maxConnectionRetries: 2
   };
