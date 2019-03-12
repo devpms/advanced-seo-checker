@@ -1,6 +1,6 @@
 {
-  "_from": "advanced-seo-checker@1.8.1",
-  "_id": "advanced-seo-checker@1.8.1",
+  "_from": "advanced-seo-checker@1.8.2",
+  "_id": "advanced-seo-checker@1.8.2",
   "_inBundle": false,
   "_integrity": "sha512-6jQxZrgC9XgKwTUoVTaEO2D/+lOTHBjb+depW9MOMcO3C/GtOzL6Bsufw2FbwIxmWLOGZF1hGFr4JnietlBxWQ==",
   "_location": "/advanced-seo-checker",
@@ -53,7 +53,7 @@
     "chalk": "^2.3.2",
     "cheerio": "^1.0.0-rc.2",
     "child_process": "^1.0.2",
-    "chrome-launcher": "^0.10.2",
+    "chrome-launcher": "^0.10.4",
     "compare-urls": "^2.0.0",
     "crypto": "^1.0.1",
     "dom-compare": "^0.3.1",
@@ -103,5 +103,5 @@
   "scripts": {
     "test": "grunt nodeunit"
   },
-  "version": "1.8.1"
+  "version": "1.8.2"
 }

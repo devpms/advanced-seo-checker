@@ -15,7 +15,7 @@ module.exports = (options) => {
     return chromeLauncher.launch(flags).then(chrome => {
       flags.port = chrome.port;
 
-      function hardKillChrome() {
+      function hardKillChrome(chrome, done) {
         const hardKillCommand = 'kill -9 ' + chrome.pid;
         exec(hardKillCommand,
           function(error, stdout, stderr) {
@@ -23,28 +23,36 @@ module.exports = (options) => {
           });
       }
 
-      function init(resolve, reject) {
-        msg.info('Waiting for Chrome instance to be ready: ' + chrome.pid);
-        setTimeout(function() {
+      function softKillChrome(chrome, done) {
+        chrome.kill().then(() => {
+          msg.info('Chrome (PORT: ' + chrome.port + ') instance was killed successfully');
+        }).catch(done);
+      }
 
-          const options = Object.assign({}, flags, config);
-          msg.info('Testing using lighthouse using nodejs');
-          //Wait to make sure that chrome instance is there and ready to serve
-          lighthouse(url, flags).then(results => {
-            // The gathered artifacts are typically removed as they can be quite large (~50MB+)
-            delete results.artifacts;
-            chrome.kill().then(() => {
-              msg.info('Chrome instance was killed successfully');
-              hardKillChrome();
-              resolve(results);
+      function init(resolve, reject) {
+        msg.info('Waiting for Chrome instance to be ready: ' + chrome.pid + ' (' + url + ')');
+        setTimeout(function() {
+          try {
+            const options = Object.assign({}, flags, config);
+            msg.info('Testing ' + url + ' using lighthouse using nodejs');
+            //Wait to make sure that chrome instance is there and ready to serve
+            lighthouse(url, flags).then(results => {
+              // The gathered artifacts are typically removed as they can be quite large (~50MB+)
+              delete results.artifacts;
+              softKillChrome(chrome, () => {
+                resolve(results);
+              });
             }).catch((error) => {
-              hardKillChrome();
-              resolve(results);
+              softKillChrome(chrome, () => {
+                reject(error);
+              });
             });
-          }).catch((error) => {
-            hardKillChrome();
-            reject(error);
-          });
+          } catch (error) {
+            softKillChrome(chrome, () => {
+              reject(error);
+            });
+          }
+
         }, 5000);
       }
 
@@ -79,39 +87,41 @@ module.exports = (options) => {
   }
 
   const chromeFlags = [
-    '--disable-gpu',
-    "--no-sandbox",
-    "--headless",
-    '--disable-background-networking',
-    '--safebrowsing-disable-auto-update',
-    '--disable-dev-shm-usage',
-    '--no-default-browser-check',
+    // '--disable-gpu',
+    // "--no-sandbox",
+    // "--headless",
+    // '--disable-background-networking',
+    // '--safebrowsing-disable-auto-update',
+    // '--disable-dev-shm-usage',
+    // '--no-default-browser-check',
     '--process-per-tab',
-    '--new-window',
-    '--disable-notifications',
-    '--disable-desktop-notifications',
-    '--disable-component-update',
-    '--disable-background-downloads',
-    '--disable-add-to-shelf',
-    '--disable-datasaver-prompt',
-    '--disable-domain-reliability',
-    '--autoplay-policy=no-user-gesture-required',
-    '--disable-background-networking',
-    '--disable-sync',
-    '--disable-default-apps',
-    '--mute-audio',
-    '--no-first-run',
-    '--disable-background-timer-throttling',
-    '--disable-client-side-phishing-detection',
+    // '--new-window',
+    // '--disable-notifications',
+    // '--disable-desktop-notifications',
+    // '--disable-component-update',
+    // '--disable-background-downloads',
+    // '--disable-add-to-shelf',
+    // '--disable-datasaver-prompt',
+    // '--disable-domain-reliability',
+    // '--autoplay-policy=no-user-gesture-required',
+    // '--disable-background-networking',
+    // '--disable-sync',
+    // '--disable-default-apps',
+    // '--mute-audio',
+    // '--no-first-run',
+    // '--disable-background-timer-throttling',
+    // '--disable-client-side-phishing-detection',
     '--disable-popup-blocking',
     '--disable-prompt-on-repost',
     '--enable-automation'
   ];
-  const flags = {
-    chromeFlags: chromeFlags,
-    handleSIGINT: true,
-    maxConnectionRetries: 2
-  };
+  const getChromeFlags = () => {
+    return {
+      chromeFlags: chromeFlags,
+      handleSIGINT: true,
+      maxConnectionRetries: 2
+    };
+  }
 
   const analyzePage = (url) => {
     let trialsLimit = 3;
@@ -124,7 +134,7 @@ module.exports = (options) => {
       if (!options.useTerminalOption && trialsLimit === 0) {
         reject(lunchingError);
       } else if (trialsLimit === 0) {
-        launchChromeAndRunLighthouseViaBash(url, flags, config).then(results => {
+        launchChromeAndRunLighthouseViaBash(url, getChromeFlags(), config).then(results => {
           resolve(results);
         }).catch((error) => {
           lunchingError = error;
@@ -132,7 +142,7 @@ module.exports = (options) => {
           reject(error);
         });
       } else {
-        launchChromeAndRunLighthouse(url, flags, config).then(results => {
+        launchChromeAndRunLighthouse(url, getChromeFlags(), config).then(results => {
           resolve(results);
         }).catch((error) => {
           lunchingError = error;
