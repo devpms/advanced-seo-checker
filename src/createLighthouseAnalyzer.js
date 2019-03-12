@@ -89,7 +89,7 @@ module.exports = (options) => {
   const chromeFlags = [
     // '--disable-gpu',
     // "--no-sandbox",
-    // "--headless",
+    "--headless",
     // '--disable-background-networking',
     // '--safebrowsing-disable-auto-update',
     // '--disable-dev-shm-usage',
