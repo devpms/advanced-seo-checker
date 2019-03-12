@@ -26,6 +26,7 @@ module.exports = (options) => {
       function softKillChrome(chrome, done) {
         chrome.kill().then(() => {
           msg.info('Chrome (PORT: ' + chrome.port + ') instance was killed successfully');
+          done()
         }).catch(done);
       }
 
@@ -39,6 +40,7 @@ module.exports = (options) => {
             lighthouse(url, flags).then(results => {
               // The gathered artifacts are typically removed as they can be quite large (~50MB+)
               delete results.artifacts;
+              msg.green('Testing ' + url + ' using lighthouse using nodejs was done');
               softKillChrome(chrome, () => {
                 resolve(results);
               });
