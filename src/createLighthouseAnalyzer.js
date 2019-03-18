@@ -24,8 +24,9 @@ module.exports = (options) => {
       }
 
       function softKillChrome(chrome, done) {
-        chrome.kill().then(() => {
-          msg.info('Chrome (PORT: ' + chrome.port + ') instance was killed successfully');
+        msg.info('Killing Chrome (PORT: ' + chrome.port + ', PID: ' + chrome.pid+ ') instance');
+        chrome.kill().then((result) => {
+          msg.info('Chrome (PORT: ' + chrome.port + ', PID: ' + chrome.pid+ ') instance was killed successfully');
           done()
         }).catch(done);
       }
@@ -35,7 +36,7 @@ module.exports = (options) => {
         setTimeout(function() {
           try {
             const options = Object.assign({}, flags, config);
-            msg.info('Testing ' + url + ' using lighthouse using nodejs');
+            msg.info('Testing ' + url + ' using lighthouse using nodejs via chrome (PID: ' + chrome.pid + ')');
             //Wait to make sure that chrome instance is there and ready to serve
             lighthouse(url, flags).then(results => {
               // The gathered artifacts are typically removed as they can be quite large (~50MB+)
@@ -45,11 +46,13 @@ module.exports = (options) => {
                 resolve(results);
               });
             }).catch((error) => {
+              msg.error(error);
               softKillChrome(chrome, () => {
                 reject(error);
               });
             });
           } catch (error) {
+            msg.error(error);
             softKillChrome(chrome, () => {
               reject(error);
             });
@@ -158,25 +161,7 @@ module.exports = (options) => {
     return promise;
   };
 
-  const analyzePages = (urls) => {
-    const init = (resolve, reject) => {
-      const promises = [];
-      for (let i = 0; i < urls.length; i++) {
-        promises.push(analyzePage(urls[i]));
-      }
-      Promise.all(promises).then(function(summary) {
-        resolve(summary);
-      }).catch(function(error) {
-        reject(error);
-      });
-    };
-
-    let promise = new Promise(init);
-    return promise;
-  };
-
   return {
-    analyzePage,
-    analyzePages
+    analyzePage
   }
 };

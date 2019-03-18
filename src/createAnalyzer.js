@@ -1,4 +1,5 @@
 const cheerio = require('cheerio');
+const async = require('async');
 const blc = require('broken-link-checker');
 const fs = require('fs');
 const stringSimilarity = require('string-similarity');
@@ -370,8 +371,11 @@ module.exports = (options) => {
           for (const auditKey in restructuredAudits) {
             const audits = restructuredAudits[auditKey];
             const firstAudit = audits[0];
-            const sum = {weight: 0, score: 0};
-            for(audit of audits){
+            const sum = {
+              weight: 0,
+              score: 0
+            };
+            for (audit of audits) {
               sum.weight += audit.weight;
               sum.score += audit.score;
             }
@@ -396,7 +400,7 @@ module.exports = (options) => {
 
         calculateIssuesImpact(page);
 
-        msg.yellow('Analyzing: ' + url + ' was done');
+        msg.green('Analyzing: ' + url + ' was done');
         resolve(page);
       }).catch(function(err) {
         msg.error(err)
@@ -417,11 +421,17 @@ module.exports = (options) => {
       }
     };
     const init = (resolve, reject) => {
-      const promises = [];
-      for (let i = 0; i < urls.length; i++) {
-        promises.push(analyzePage(urls[i], bodies[i]));
-      }
-      Promise.all(promises).then(function(pages) {
+      const pages = [];
+      async.eachSeries(urls, (url, done) => {
+        const index = urls.indexOf(url);
+        analyzePage(urls[index], bodies[index]).then((page) => {
+          pages.push(page);
+          done();
+        }).catch((error) => {
+          msg.error(error);
+          done(error);
+        });
+      }, (error) => {
         summary.pages = pages;
         testDuplicate('duplicateTitlePages', 'title');
         testDuplicate('duplicateDescPages', 'description');
@@ -430,10 +440,14 @@ module.exports = (options) => {
         calculateIssuesImpact(summary);
         msg.green('All pages were analyzed');
         resolve(summary);
-      }).catch(function(err) {
-        msg.error(err);
-        reject(err);
       });
+
+      // Promise.all(promises).then(function(pages) {
+      //
+      // }).catch(function(err) {
+      //   msg.error(err);
+      //   reject(err);
+      // });
     };
 
     const testDuplicateContent = (urls, bodies) => {
