@@ -16,17 +16,19 @@ module.exports = (options) => {
       flags.port = chrome.port;
 
       function hardKillChrome(chrome, done) {
+        msg.info('Killing Chrome (PORT: ' + chrome.port + ', PID: ' + chrome.pid + ') instance');
         const hardKillCommand = 'kill -9 ' + chrome.pid;
         exec(hardKillCommand,
-          function(error, stdout, stderr) {
-            console.log('CHROME INSTANCE WAS REMOVED: ' + chrome.pid);
+          (error, stdout, stderr) => {
+            msg.info('Chrome (PORT: ' + chrome.port + ', PID: ' + chrome.pid + ') instance was killed hardly successfully');
+            done();
           });
       }
 
       function softKillChrome(chrome, done) {
-        msg.info('Killing Chrome (PORT: ' + chrome.port + ', PID: ' + chrome.pid+ ') instance');
+        msg.info('Killing Chrome (PORT: ' + chrome.port + ', PID: ' + chrome.pid + ') instance');
         chrome.kill().then((result) => {
-          msg.info('Chrome (PORT: ' + chrome.port + ', PID: ' + chrome.pid+ ') instance was killed successfully');
+          msg.info('Chrome (PORT: ' + chrome.port + ', PID: ' + chrome.pid + ') instance was killed successfully');
           done()
         }).catch(done);
       }
@@ -42,18 +44,18 @@ module.exports = (options) => {
               // The gathered artifacts are typically removed as they can be quite large (~50MB+)
               delete results.artifacts;
               msg.green('Testing ' + url + ' using lighthouse using nodejs was done');
-              softKillChrome(chrome, () => {
+              hardKillChrome(chrome, () => {
                 resolve(results);
               });
             }).catch((error) => {
               msg.error(error);
-              softKillChrome(chrome, () => {
+              hardKillChrome(chrome, () => {
                 reject(error);
               });
             });
           } catch (error) {
             msg.error(error);
-            softKillChrome(chrome, () => {
+            hardKillChrome(chrome, () => {
               reject(error);
             });
           }
