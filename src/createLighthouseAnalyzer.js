@@ -16,37 +16,37 @@ module.exports = (options) => {
         const browser = await puppeteer.launch({
           headless: false
         });
-        const page = await browser.newPage();
+        let page = null;
         try {
           const wsEndpoint = browser.wsEndpoint();
           const port = Number(wsEndpoint.substring(wsEndpoint.indexOf('1:') + 2, wsEndpoint.indexOf('/dev')));
 
           msg.info('Preparing browser for ' + url + ' (PORT: ' + port + ')');
           if (options.headers && options.headers.authorization) {
+            page = await browser.newPage();
             msg.info('Authenticating browser for ' + url + ' (PORT: ' + port + ')');
             await page.authenticate({
               username: options.headers.authorization.username,
               password: options.headers.authorization.password
             });
+            await page.goto(url);
           }
 
-          await page.goto(url);
           config.port = port;
           lighthouse(url, config).then(async (results) => {
             // The gathered artifacts are typically removed as they can be quite large (~50MB+)
             delete results.artifacts;
             msg.green('Testing ' + url + ' using lighthouse using nodejs was done');
-            await page.close();
+            if (page) await page.close();
             await browser.close();
             resolve(results);
           });
         } catch (error) {
           msg.error(error);
-          await page.close();
+          if (page) await page.close();
           await browser.close();
           reject(error);
-        } finally {
-        }
+        } finally {}
       })();
     };
     let promise = new Promise(init);
