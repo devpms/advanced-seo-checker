@@ -16,21 +16,21 @@ module.exports = (options) => {
         const browser = await puppeteer.launch({
           headless: true
         });
-        let page = null;
         try {
           const wsEndpoint = browser.wsEndpoint();
           const port = Number(wsEndpoint.substring(wsEndpoint.indexOf('1:') + 2, wsEndpoint.indexOf('/dev')));
 
           msg.info('Preparing browser for ' + url + ' (PORT: ' + port + ')');
           if (options.headers && options.headers.authorization) {
-            page = await browser.newPage();
-            msg.info('Authenticating browser for ' + url + ' (PORT: ' + port + ')');
-            await page.authenticate({
-              username: options.headers.authorization.username,
-              password: options.headers.authorization.password
-            });
-            await page.goto(url, {
-              timeout: 3000000
+            browser.on('targetcreated', async () => {
+              console.log('attaching pre-filter');
+              const pageList = await browser.pages();
+              const page = pageList[pageList.length - 1];
+              msg.info('Authenticating browser for ' + url + ' (PORT: ' + port + ')');
+              await page.authenticate({
+                username: options.headers.authorization.username,
+                password: options.headers.authorization.password
+              });
             });
           }
 
@@ -39,18 +39,15 @@ module.exports = (options) => {
             // The gathered artifacts are typically removed as they can be quite large (~50MB+)
             delete results.artifacts;
             msg.green('Testing ' + url + ' using lighthouse using nodejs was done');
-            if (page) await page.close();
             await browser.close();
             resolve(results);
           }).catch(async (error) => {
             msg.error(error);
-            if (page) await page.close();
             await browser.close();
             reject(error);
           });
         } catch (error) {
           msg.error(error);
-          if (page) await page.close();
           await browser.close();
           reject(error);
         } finally {}
