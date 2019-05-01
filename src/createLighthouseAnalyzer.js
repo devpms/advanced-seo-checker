@@ -29,7 +29,9 @@ module.exports = (options) => {
               username: options.headers.authorization.username,
               password: options.headers.authorization.password
             });
-            await page.goto(url);
+            await page.goto(url, {
+              timeout: 3000000
+            });
           }
 
           config.port = port;
