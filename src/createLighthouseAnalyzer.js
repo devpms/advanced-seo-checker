@@ -14,7 +14,7 @@ module.exports = (options) => {
     const init = (resolve, reject) => {
       (async () => {
         const browser = await puppeteer.launch({
-          headless: false
+          headless: true
         });
         let page = null;
         try {
