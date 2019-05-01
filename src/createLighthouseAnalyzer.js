@@ -42,7 +42,7 @@ module.exports = (options) => {
             if (page) await page.close();
             await browser.close();
             resolve(results);
-          }).catch((error) => {
+          }).catch(async (error) => {
             msg.error(error);
             if (page) await page.close();
             await browser.close();
