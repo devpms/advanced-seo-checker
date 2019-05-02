@@ -23,7 +23,6 @@ module.exports = (options) => {
           msg.info('Preparing browser for ' + url + ' (PORT: ' + port + ')');
           if (options.headers && options.headers.authorization) {
             browser.on('targetcreated', async () => {
-              console.log('attaching pre-filter');
               const pageList = await browser.pages();
               const page = pageList[pageList.length - 1];
               msg.info('Authenticating browser for ' + url + ' (PORT: ' + port + ')');

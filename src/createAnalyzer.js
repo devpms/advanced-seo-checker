@@ -339,14 +339,17 @@ module.exports = (options) => {
         if (page.lighthousedata.error) {
 
         } else {
+          const performanceCategory = page.lighthousedata.categories.performance;
           const seoCategory = page.lighthousedata.categories.seo;
           const pwaCategory = page.lighthousedata.categories.pwa;
           const accessibilityCategory = page.lighthousedata.categories.accessibility;
           const bestPracticesCategory = page.lighthousedata.categories['best-practices'];
 
-          const auditsRefs = seoCategory.auditRefs.concat(bestPracticesCategory.auditRefs,
+          let auditsRefs = performanceCategory.auditRefs.concat(seoCategory.auditRef, bestPracticesCategory.auditRefs,
             pwaCategory.auditRefs, accessibilityCategory.auditRefs);
-
+          auditsRefs = auditsRefs.filter((item) => {
+            return item;
+          });
           let mobileFriendlyAudit = {};
           const restructuredAudits = {};
           for (const auditRef of auditsRefs) {
