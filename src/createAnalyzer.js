@@ -361,7 +361,7 @@ module.exports = (options) => {
             }
             restructuredAudits[audit.id] = restructuredAudits[audit.id] ? restructuredAudits[audit.id] : [];
             restructuredAudits[audit.id].push(audit);
-            audit.weight = auditRef.weight;
+            audit.weight = auditRef.weight ? auditRef.weight : 1;
             audit.score *= 100;
             const issueCategory = getIssueCategory(audit.id);
 
