@@ -1,7 +1,7 @@
 const http = require('http');
 const parseURL = require('url-parse');
 const request = require('request');
-const urlExists = require('url-exists');
+const urlExists = require('url-exists-deep');
 const normalizeUrl = require('normalize-url');
 const mitt = require('mitt');
 const createAnalyzer = require('./createAnalyzer');
@@ -51,6 +51,10 @@ module.exports = function AdvancedSEOChecker(uri, opts) {
           strictSSL: false,
           rejectUnauthorized: false,
           agent: false,
+          headers: {
+            'User-Agent': 'Node.js/0.6.6',
+            'Proxy-Connections': 'keep-alive'
+          },
           pool: {
             maxSockets: 100
           }
@@ -181,16 +185,27 @@ module.exports = function AdvancedSEOChecker(uri, opts) {
       if (options.ignoreSitemapTest) {
         return resolve();
       }
-      urlExists(normalizeUrl(url) + '/sitemap.xml', function(err, exists) {
-        msg.appMsg('Sitemap test was done');
-        resolve({
-          summary: !exists ? 'Sitemap.xml not found' : 'Sitemap.xml was found',
-          value: exists,
-          weight: 1,
-          score: exists ? 100 : 0,
-          impact: !exists ? 100 : 0
-        });
-      });
+      msg.appMsg('Sitemap testing..');
+      urlExists(normalizeUrl(url) + '/sitemap.xml')
+        .then(function(response) {
+          msg.appMsg('Sitemap test was done');
+          const exists = response ? true : false;
+          resolve({
+            summary: !exists ? 'Sitemap.xml not found' : 'Sitemap.xml was found',
+            value: exists,
+            weight: 1,
+            score: exists ? 100 : 0,
+            impact: !exists ? 100 : 0
+          });
+        }).catch(function(err) {
+          resolve({
+            summary: 'Sitemap.xml not found',
+            value: false,
+            weight: 1,
+            score: 0,
+            impact: 100
+          });
+        });;
     };
     let promise = new Promise(init);
     return promise;
@@ -201,16 +216,27 @@ module.exports = function AdvancedSEOChecker(uri, opts) {
       if (options.ignoreRobotsTest) {
         return resolve();
       }
-      urlExists(normalizeUrl(url) + '/robots.txt', function(err, exists) {
-        msg.appMsg('robots test was done');
-        resolve({
-          summary: !exists ? 'Robots.txt not found' : 'Robots.txt was found',
-          value: exists,
-          weight: 1,
-          score: exists ? 100 : 0,
-          impact: !exists ? 100 : 0
+      msg.appMsg('robots testing..');
+      urlExists(normalizeUrl(url) + '/robots.xml')
+        .then(function(response) {
+          msg.appMsg('robots test was done');
+          const exists = response ? true : false;
+          resolve({
+            summary: !exists ? 'Robots.txt not found' : 'Robots.txt was found',
+            value: exists,
+            weight: 1,
+            score: exists ? 100 : 0,
+            impact: !exists ? 100 : 0
+          });
+        }).catch(function(err) {
+          resolve({
+            summary: 'Robots.txt not found',
+            value: false,
+            weight: 1,
+            score: 0,
+            impact: 100
+          });
         });
-      });
     };
     let promise = new Promise(init);
     return promise;
