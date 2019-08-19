@@ -44,18 +44,33 @@ module.exports = function AdvancedSEOChecker(uri, opts) {
   const load = (url) => {
     let limit = 3;
     const getPage = (url, done) => {
-      request.get(url.toLowerCase(), function (error, response, body) {
-        if (!error || limit === 0) {
-          return done(error, body);
-        }
-        limit--;
-        return getPage(url, done);
-      });
+      request.get({
+          url: url.toLowerCase(),
+          timeout: 60000,
+          followAllRedirects: true,
+          strictSSL: false,
+          rejectUnauthorized: false,
+          agent: false,
+          pool: {
+            maxSockets: 100
+          }
+        },
+        function(error, response, body) {
+          if (error) {
+            msg.error(error);
+          }
+
+          if (!error || limit === 0) {
+            return done(error, body);
+          }
+          limit--;
+          return getPage(url, done);
+        });
     };
     const init = (resolve, reject) => {
       url = getValidatedURL(url);
       // Make request and fire callback
-      getPage(url.toLowerCase(), function (error, body) {
+      getPage(url.toLowerCase(), function(error, body) {
         if (!error) {
           return resolve(body);
         }
@@ -74,8 +89,9 @@ module.exports = function AdvancedSEOChecker(uri, opts) {
       msg.appMsg('Retrieving urls bodies done');
       msg.appMsg('Start analyzing urls');
       const promises = [validateSitemap(), validateRobots(), testSSLCertificate(normalizeUrl(uri)),
-        analyzer.analyzePages(urls, bodies)];
-      Promise.all(promises).then(function (result) {
+        analyzer.analyzePages(urls, bodies)
+      ];
+      Promise.all(promises).then(function(result) {
         res = result[3];
         if (!options.ignoreSSLTest) {
           res.issues.warnings.ssl = result[2];
@@ -89,7 +105,7 @@ module.exports = function AdvancedSEOChecker(uri, opts) {
 
         msg.green('Analyzing urls done');
         resolve(res);
-      }).catch(function (err) {
+      }).catch(function(err) {
         reject(err);
       });
     };
@@ -97,16 +113,15 @@ module.exports = function AdvancedSEOChecker(uri, opts) {
     const init = (resolve, reject) => {
       if (bodies) {
         onBodiesLoad(bodies, resolve, reject);
-      }
-      else {
+      } else {
         const bodiesPromises = [];
         for (let i = 0; i < urls.length; i++) {
           bodiesPromises.push(load(urls[i]));
         }
         msg.appMsg('Start retrieving urls bodies');
-        Promise.all(bodiesPromises).then(function (bodies) {
+        Promise.all(bodiesPromises).then(function(bodies) {
           onBodiesLoad(bodies, resolve, reject);
-        }).catch(function (error) {
+        }).catch(function(error) {
           msg.error(error);
         });
       }
@@ -122,7 +137,7 @@ module.exports = function AdvancedSEOChecker(uri, opts) {
       }
 
       msg.appMsg('Starting SSLLabs test');
-      ssllabs.scan(url, function (err, host) {
+      ssllabs.scan(url, function(err, host) {
         msg.appMsg('SSLLabs test was done');
         const result = {
           summary: '',
@@ -143,7 +158,7 @@ module.exports = function AdvancedSEOChecker(uri, opts) {
         if (err || !host) {
           return resolve(result);
         }
-        host.endpoints.forEach(function (endpoint) {
+        host.endpoints.forEach(function(endpoint) {
           if (!endpoint.grade) {
             return;
           }
@@ -166,7 +181,7 @@ module.exports = function AdvancedSEOChecker(uri, opts) {
       if (options.ignoreSitemapTest) {
         return resolve();
       }
-      urlExists(normalizeUrl(url) + '/sitemap.xml', function (err, exists) {
+      urlExists(normalizeUrl(url) + '/sitemap.xml', function(err, exists) {
         msg.appMsg('Sitemap test was done');
         resolve({
           summary: !exists ? 'Sitemap.xml not found' : 'Sitemap.xml was found',
@@ -186,7 +201,7 @@ module.exports = function AdvancedSEOChecker(uri, opts) {
       if (options.ignoreRobotsTest) {
         return resolve();
       }
-      urlExists(normalizeUrl(url) + '/robots.txt', function (err, exists) {
+      urlExists(normalizeUrl(url) + '/robots.txt', function(err, exists) {
         msg.appMsg('robots test was done');
         resolve({
           summary: !exists ? 'Robots.txt not found' : 'Robots.txt was found',
