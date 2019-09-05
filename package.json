@@ -1,6 +1,6 @@
 {
-  "_from": "advanced-seo-checker@2.5.0",
-  "_id": "advanced-seo-checker@2.5.0",
+  "_from": "advanced-seo-checker@2.6.0",
+  "_id": "advanced-seo-checker@2.6.0",
   "_inBundle": false,
   "_integrity": "sha512-6jQxZrgC9XgKwTUoVTaEO2D/+lOTHBjb+depW9MOMcO3C/GtOzL6Bsufw2FbwIxmWLOGZF1hGFr4JnietlBxWQ==",
   "_location": "/advanced-seo-checker",
@@ -66,7 +66,7 @@
     "node-ssllabs": "^0.5.0",
     "normalize-url": "^2.0.1",
     "path": "^0.12.7",
-    "puppeteer": "^1.15.0",
+    "puppeteer": "^1.19.0",
     "request": "^2.88.0",
     "simplecrawler": "^1.1.6",
     "string-similarity": "^1.2.0",
@@ -106,5 +106,5 @@
   "scripts": {
     "test": "grunt nodeunit"
   },
-  "version": "2.5.0"
+  "version": "2.6.0"
 }

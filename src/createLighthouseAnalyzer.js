@@ -1,5 +1,6 @@
 const lighthouse = require('lighthouse');
 const puppeteer = require('puppeteer');
+const devices = require('puppeteer/DeviceDescriptors');
 const lhConfig = require('./lighthouseConfig');
 const msg = require('./helpers/msg-helper');
 const exec = require('child_process').exec;
@@ -21,17 +22,19 @@ module.exports = (options) => {
           const port = Number(wsEndpoint.substring(wsEndpoint.indexOf('1:') + 2, wsEndpoint.indexOf('/dev')));
 
           msg.info('Preparing browser for ' + url + ' (PORT: ' + port + ')');
-          if (options.headers && options.headers.authorization) {
-            browser.on('targetcreated', async () => {
-              const pageList = await browser.pages();
-              const page = pageList[pageList.length - 1];
+          browser.on('targetcreated', async () => {
+            const pageList = await browser.pages();
+            const page = pageList[pageList.length - 1];
+            await page.emulate(devices['Nexus 5X']);
+
+            if (options.headers && options.headers.authorization) {
               msg.info('Authenticating browser for ' + url + ' (PORT: ' + port + ')');
               await page.authenticate({
                 username: options.headers.authorization.username,
                 password: options.headers.authorization.password
               });
-            });
-          }
+            }
+          });
 
           config.port = port;
           lighthouse(url, config).then(async (results) => {
