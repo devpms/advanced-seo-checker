@@ -1,6 +1,6 @@
 {
-  "_from": "advanced-seo-checker@2.8.0",
-  "_id": "advanced-seo-checker@2.8.0",
+  "_from": "advanced-seo-checker@2.9.0",
+  "_id": "advanced-seo-checker@2.9.0",
   "_inBundle": false,
   "_integrity": "sha512-6jQxZrgC9XgKwTUoVTaEO2D/+lOTHBjb+depW9MOMcO3C/GtOzL6Bsufw2FbwIxmWLOGZF1hGFr4JnietlBxWQ==",
   "_location": "/advanced-seo-checker",
@@ -59,7 +59,7 @@
     "fs": "0.0.2",
     "html-differ": "^1.4.0",
     "jsdom": "^15.1.1",
-    "lighthouse": "^5.2.0",
+    "lighthouse": "^5.4.0",
     "mitt": "^1.1.3",
     "moment": "^2.24.0",
     "node-ssllabs": "^1.1.2",
@@ -105,5 +105,5 @@
   "scripts": {
     "test": "grunt nodeunit"
   },
-  "version": "2.8.0"
+  "version": "2.9.0"
 }
