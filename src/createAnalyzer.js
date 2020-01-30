@@ -1,6 +1,5 @@
 const cheerio = require('cheerio');
 const async = require('async');
-const blc = require('broken-link-checker');
 const fs = require('fs');
 const stringSimilarity = require('string-similarity');
 const createLHAnalyzer = require('./createLighthouseAnalyzer');
@@ -161,100 +160,6 @@ module.exports = (options) => {
     return result;
   };
 
-  const discoverBrokenLinks = (url, body) => {
-    const init = (resolve, reject) => {
-      const broken = {
-          a: {
-            internal: [],
-            external: []
-          },
-          img: {
-            internal: [],
-            external: []
-          },
-          source: {
-            internal: [],
-            external: []
-          }
-        },
-        total = {
-          a: {
-            internal: [],
-            external: []
-          },
-          img: {
-            internal: [],
-            external: []
-          },
-          source: {
-            internal: [],
-            external: []
-          }
-        };
-
-      var htmlChecker = new blc.HtmlChecker({}, {
-        link: function(result) {
-
-          const type = result.internal ? 'internal' : 'external';
-          if (!total[result.html.tagName]) {
-            msg.appMsg('New tag detected: ' + result.html.tagName);
-            total[result.html.tagName] = {
-              internal: [],
-              external: []
-            };
-            broken[result.html.tagName] = {
-              internal: [],
-              external: []
-            };
-          }
-          total[result.html.tagName][type].push(result);
-          if (result.broken) {
-            broken[result.html.tagName][type].push(result);
-          }
-        },
-        complete: function(result) {
-          const res = {
-            total: total,
-            broken: broken,
-            internalBrokenLinks: {
-              description: broken.a.internal.length + ' internal links are broken',
-              list: broken.a.internal,
-              weight: 1,
-              value: broken.a.internal.length,
-              score: total.a.internal.length ? 100 - (broken.a.internal.length / total.a.internal.length) * 100 : 100
-            },
-            externalBrokenLinks: {
-              description: broken.a.external.length + ' external links are broken',
-              list: broken.a.external,
-              weight: 1,
-              value: broken.a.external.length,
-              score: total.a.external.length ? 100 - (broken.a.external.length / total.a.external.length) * 100 : 100
-            },
-            internalBrokenImages: {
-              description: broken.img.internal.length + ' internal images are broken',
-              weight: 1,
-              list: broken.img.internal.concat(broken.source.internal),
-              value: broken.img.internal.length + broken.source.internal.length,
-              score: total.img.internal.length ? 100 - ((broken.img.internal.length + broken.source.internal.length) / (total.img.internal.length + total.source.internal.length)) * 100 : 100
-            },
-            externalBrokenImages: {
-              description: broken.img.external.length + ' external images are broken',
-              weight: 1,
-              list: broken.img.external.concat(broken.source.external),
-              value: broken.img.external.length + broken.source.external.length,
-              score: total.img.external.length ? 100 - ((broken.img.external.length + broken.source.external.length) / (total.img.external.length + total.source.external.length)) * 100 : 100
-            }
-          };
-          resolve(res);
-        }
-      });
-      htmlChecker.scan(body, url);
-    };
-
-    let promise = new Promise(init);
-    return promise;
-  };
-
   const calculateIssuesImpact = (page) => {
     for (const categoryKey in page.issues) {
       const category = page.issues[categoryKey];
@@ -324,18 +229,12 @@ module.exports = (options) => {
         return resolve(page);
       }
 
-      // const promises = [discoverBrokenLinks(url, body), createLHAnalyzer(createLHAnalyzer).analyzePage(url)];
       const promises = [createLHAnalyzer(options).analyzePage(url)];
       Promise.all(promises).then(function(results) {
-        // page.blc = results[0];
         // page.lighthousedata = results[1].lhr;
         page.lighthousedata = results[0].lhr;
         page.body = JSON.parse(JSON.stringify(results[0].lhr));
 
-        // page.issues.errors['internal-broken-links'] = page.blc.internalBrokenLinks;
-        // page.issues.errors['external-broken-links'] = page.blc.externalBrokenLinks;
-        // page.issues.errors['internal-broken-images'] = page.blc.internalBrokenImages;
-        // page.issues.errors['external-broken-images'] = page.blc.externalBrokenImages;
         if (page.lighthousedata.error) {
 
         } else {
@@ -403,6 +302,7 @@ module.exports = (options) => {
             page.metrics[metricKey] = page.lighthousedata.audits[metricKey];
           }
           page.metrics.summary = page.lighthousedata.audits['metrics'].details.items[0];
+          page.metrics.summary.timeToFirstByte = page.metrics['time-to-first-byte'].numericValue;
 
           for (const categoryKey in page.lighthousedata.categories) {
             page.scores[categoryKey] = page.lighthousedata.categories[categoryKey];
