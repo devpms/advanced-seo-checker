@@ -212,6 +212,8 @@ module.exports = (options) => {
         'interactive': null,
         'mainthread-work-breakdown': null,
         'bootup-time': null,
+        'max-potential-fid': null,
+        'total-blocking-time': null,
       };
 
       for (let i = 1; i <= 6; i++) {
