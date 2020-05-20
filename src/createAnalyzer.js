@@ -216,6 +216,7 @@ module.exports = (options) => {
         'speed-index': null,
         'estimated-input-latency': null,
         'time-to-first-byte': null,
+        'server-response-time': null,
         'first-cpu-idle': null,
         'interactive': null,
         'mainthread-work-breakdown': null,
@@ -314,6 +315,9 @@ module.exports = (options) => {
             //delete metrics from issues.notices
             delete page.issues.notices[metricKey];
           }
+          page.metrics['time-to-first-byte'] = page.metrics['server-response-time'];
+          page.metrics['server-response-time'];
+          
           page.metrics.summary = page.lighthousedata.audits['metrics'].details.items[0];
           page.metrics.summary.timeToFirstByte = page.metrics['server-response-time'].numericValue;
 
