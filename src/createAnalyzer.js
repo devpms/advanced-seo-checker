@@ -35,6 +35,7 @@ module.exports = (options) => {
       'meta-viewport': mainIssuesCategories.errors,
       'document-title': mainIssuesCategories.errors,
       'duplicate-id': mainIssuesCategories.errors,
+      'duplicate-id-active': mainIssuesCategories.errors,
       'html-has-lang': mainIssuesCategories.errors,
       'content-width': mainIssuesCategories.errors,
       'valid-lang': mainIssuesCategories.errors,
@@ -56,7 +57,9 @@ module.exports = (options) => {
       'uses-long-cache-ttl': mainIssuesCategories.errors,
       'uses-rel-preload': mainIssuesCategories.errors,
       'unused-css-rules': mainIssuesCategories.errors,
+      'unused-javascript':  mainIssuesCategories.errors,
       'offscreen-images': mainIssuesCategories.errors,
+      'form-field-multiple-labels': mainIssuesCategories.warnings,
       'managed-focus': mainIssuesCategories.warnings,
       'offscreen-content-hidden': mainIssuesCategories.warnings,
       'use-landmarks': mainIssuesCategories.warnings,
@@ -129,7 +132,11 @@ module.exports = (options) => {
       'aria-required-children': mainIssuesCategories.notices,
       'aria-required-parent': mainIssuesCategories.notices,
       'button-name': mainIssuesCategories.notices,
-      'bypass': mainIssuesCategories.notices
+      'bypass': mainIssuesCategories.notices,
+      'duplicate-id-aria': mainIssuesCategories.notices,
+      'heading-order': mainIssuesCategories.notices,
+      'js-librarie': mainIssuesCategories.notices,
+
 
     };
     return categories[id] ? categories[id] : mainIssuesCategories.notices;
@@ -204,6 +211,7 @@ module.exports = (options) => {
       page.metrics = {
         'first-contentful-paint': null,
         'first-meaningful-paint': null,
+        'largest-contentful-paint': null,
         'load-fast-enough-for-pwa': null,
         'speed-index': null,
         'estimated-input-latency': null,
@@ -214,6 +222,7 @@ module.exports = (options) => {
         'bootup-time': null,
         'max-potential-fid': null,
         'total-blocking-time': null,
+        'cumulative-layout-shift': null
       };
 
       for (let i = 1; i <= 6; i++) {
