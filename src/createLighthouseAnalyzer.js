@@ -25,7 +25,7 @@ module.exports = (options) => {
           browser.on('targetcreated', async () => {
             const pageList = await browser.pages();
             const page = pageList[pageList.length - 1];
-            await page.emulate(devices['Nexus 5X']);
+            // await page.emulate(devices['Nexus 5X']);
 
             if (options.headers && options.headers.authorization) {
               msg.info('Authenticating browser for ' + url + ' (PORT: ' + port + ')');
