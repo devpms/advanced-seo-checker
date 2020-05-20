@@ -315,7 +315,7 @@ module.exports = (options) => {
             delete page.issues.notices[metricKey];
           }
           page.metrics.summary = page.lighthousedata.audits['metrics'].details.items[0];
-          page.metrics.summary.timeToFirstByte = page.metrics['time-to-first-byte'].numericValue;
+          page.metrics.summary.timeToFirstByte = page.metrics['server-response-time'].numericValue;
 
           for (const categoryKey in page.lighthousedata.categories) {
             page.scores[categoryKey] = page.lighthousedata.categories[categoryKey];
