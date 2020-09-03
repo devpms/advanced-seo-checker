@@ -36,10 +36,6 @@
   "_requiredBy": [
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/advanced-seo-checker/-/advanced-seo-checker.tgz",
-  "_shasum": "55269d60b9107c58de679aef254c63ad15a2d027",
-  "_spec": "advanced-seo-checker@^1.4.9",
-  "_where": "/home/ubuntu/www/seo-monitoring-tool",
   "author": {
     "name": "Hazem Hagrass"
   },
