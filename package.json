@@ -1,41 +1,4 @@
 {
-  "_from": "advanced-seo-checker@3.1.4",
-  "_id": "advanced-seo-checker@3.1.4",
-  "_inBundle": false,
-  "_integrity": "sha512-6jQxZrgC9XgKwTUoVTaEO2D/+lOTHBjb+depW9MOMcO3C/GtOzL6Bsufw2FbwIxmWLOGZF1hGFr4JnietlBxWQ==",
-  "_location": "/advanced-seo-checker",
-  "_phantomChildren": {
-    "asynckit": "0.4.0",
-    "aws4": "1.6.0",
-    "caseless": "0.12.0",
-    "co": "4.6.0",
-    "color-convert": "1.9.0",
-    "combined-stream": "1.0.5",
-    "decode-uri-component": "0.2.0",
-    "delayed-stream": "1.0.0",
-    "escape-string-regexp": "1.0.5",
-    "extend": "3.0.1",
-    "fast-deep-equal": "1.0.0",
-    "fast-json-stable-stringify": "2.0.0",
-    "forever-agent": "0.6.1",
-    "is-plain-obj": "1.1.0",
-    "is-typedarray": "1.0.0",
-    "isstream": "0.1.2",
-    "json-schema-traverse": "0.3.1",
-    "json-stringify-safe": "5.0.1",
-    "jsprim": "1.4.1",
-    "oauth-sign": "0.8.2",
-    "punycode": "1.4.1",
-    "safe-buffer": "5.1.1",
-    "sshpk": "1.13.1",
-    "strict-uri-encode": "1.1.0",
-    "stringstream": "0.0.5",
-    "tunnel-agent": "0.6.0",
-    "uuid": "3.1.0"
-  },
-  "_requiredBy": [
-    "/"
-  ],
   "author": {
     "name": "Hazem Hagrass"
   },
@@ -101,5 +64,5 @@
   "scripts": {
     "test": "grunt nodeunit"
   },
-  "version": "3.1.4"
+  "version": "3.1.5"
 }
