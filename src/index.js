@@ -1,12 +1,12 @@
-const http = require('http');
-const parseURL = require('url-parse');
-const request = require('request');
-const urlExists = require('url-exists-deep').default;
-const normalizeUrl = require('normalize-url');
-const mitt = require('mitt');
-const createAnalyzer = require('./createAnalyzer');
+const http = require("http");
+const parseURL = require("url-parse");
+const request = require("request");
+const urlExists = require("url-exists-deep").default;
+const normalizeUrl = require("normalize-url");
+const mitt = require("mitt");
+const createAnalyzer = require("./createAnalyzer");
 const ssllabs = require("node-ssllabs");
-const msg = require('./helpers/msg-helper');
+const msg = require("./helpers/msg-helper");
 
 module.exports = function AdvancedSEOChecker(uri, opts) {
   const defaultOpts = {
@@ -14,7 +14,7 @@ module.exports = function AdvancedSEOChecker(uri, opts) {
     ignoreRobotsTest: true,
     ignoreSitemapTest: true,
     ignoreInternalPagesIssues: false,
-    useTerminalOption: false
+    useTerminalOption: false,
   };
   const options = Object.assign({}, defaultOpts, opts);
   if (options.ignoreInternalPagesIssues) {
@@ -23,28 +23,31 @@ module.exports = function AdvancedSEOChecker(uri, opts) {
     options.ignoreSitemapTest = false;
   }
   if (!uri) {
-    throw new Error('Requires a valid URL.');
+    throw new Error("Requires a valid URL.");
   }
 
   const emitter = mitt();
   const parsedUrl = parseURL(
     normalizeUrl(uri, {
       stripWWW: false,
-      removeTrailingSlash: false
+      removeTrailingSlash: false,
     })
   );
 
   const getValidatedURL = (url) => {
     // Check if user input protocol
-    if (url.indexOf('http://') < 0 && url.indexOf('https://') < 0) { // TODO: Turn this into its own function
-      url = 'http://' + url;
+    if (url.indexOf("http://") < 0 && url.indexOf("https://") < 0) {
+      // TODO: Turn this into its own function
+      url = "http://" + url;
     }
     return url;
-  }
+  };
+  const { cookies } = opts;
   const load = (url) => {
     let limit = 3;
     const getPage = (url, done) => {
-      request.get({
+      request.get(
+        {
           url: url.toLowerCase(),
           timeout: 60000,
           followAllRedirects: true,
@@ -52,14 +55,15 @@ module.exports = function AdvancedSEOChecker(uri, opts) {
           rejectUnauthorized: false,
           agent: false,
           headers: {
-            'User-Agent': 'Node.js/0.6.6',
-            'Proxy-Connections': 'keep-alive'
+            "User-Agent": "Node.js/0.6.6",
+            "Proxy-Connections": "keep-alive",
+            Cookie: cookies,
           },
           pool: {
-            maxSockets: 100
-          }
+            maxSockets: 100,
+          },
         },
-        function(error, response, body) {
+        function (error, response, body) {
           if (error) {
             msg.error(error);
           }
@@ -69,16 +73,17 @@ module.exports = function AdvancedSEOChecker(uri, opts) {
           }
           limit--;
           return getPage(url, done);
-        });
+        }
+      );
     };
     const init = (resolve, reject) => {
       url = getValidatedURL(url);
       // Make request and fire callback
-      getPage(url.toLowerCase(), function(error, body) {
+      getPage(url.toLowerCase(), function (error, body) {
         if (!error) {
           return resolve(body);
         }
-        return resolve('');
+        return resolve("");
       });
     };
 
@@ -90,28 +95,33 @@ module.exports = function AdvancedSEOChecker(uri, opts) {
     const analyzer = createAnalyzer(options);
     urls = Array.isArray(urls) ? urls : [urls];
     const onBodiesLoad = (bodies, resolve, reject) => {
-      msg.appMsg('Retrieving urls bodies done');
-      msg.appMsg('Start analyzing urls');
-      const promises = [validateSitemap(), validateRobots(), testSSLCertificate(normalizeUrl(uri)),
-        analyzer.analyzePages(urls, bodies)
+      msg.appMsg("Retrieving urls bodies done");
+      msg.appMsg("Start analyzing urls");
+      const promises = [
+        validateSitemap(),
+        validateRobots(),
+        testSSLCertificate(normalizeUrl(uri)),
+        analyzer.analyzePages(urls, bodies),
       ];
-      Promise.all(promises).then(function(result) {
-        res = result[3];
-        if (!options.ignoreSSLTest) {
-          res.issues.warnings.ssl = result[2];
-        }
-        if (!options.ignoreSitemapTest) {
-          res.issues.notices.sitemap = result[0];
-        }
-        if (!options.ignoreRobotsTest) {
-          res.issues.notices.robots = result[1];
-        }
+      Promise.all(promises)
+        .then(function (result) {
+          res = result[3];
+          if (!options.ignoreSSLTest) {
+            res.issues.warnings.ssl = result[2];
+          }
+          if (!options.ignoreSitemapTest) {
+            res.issues.notices.sitemap = result[0];
+          }
+          if (!options.ignoreRobotsTest) {
+            res.issues.notices.robots = result[1];
+          }
 
-        msg.green('Analyzing urls done');
-        resolve(res);
-      }).catch(function(err) {
-        reject(err);
-      });
+          msg.green("Analyzing urls done");
+          resolve(res);
+        })
+        .catch(function (err) {
+          reject(err);
+        });
     };
 
     const init = (resolve, reject) => {
@@ -122,12 +132,14 @@ module.exports = function AdvancedSEOChecker(uri, opts) {
         for (let i = 0; i < urls.length; i++) {
           bodiesPromises.push(load(urls[i]));
         }
-        msg.appMsg('Start retrieving urls bodies');
-        Promise.all(bodiesPromises).then(function(bodies) {
-          onBodiesLoad(bodies, resolve, reject);
-        }).catch(function(error) {
-          msg.error(error);
-        });
+        msg.appMsg("Start retrieving urls bodies");
+        Promise.all(bodiesPromises)
+          .then(function (bodies) {
+            onBodiesLoad(bodies, resolve, reject);
+          })
+          .catch(function (error) {
+            msg.error(error);
+          });
       }
     };
 
@@ -140,38 +152,44 @@ module.exports = function AdvancedSEOChecker(uri, opts) {
         return resolve();
       }
 
-      msg.appMsg('Starting SSLLabs test');
-      ssllabs.scan(url, function(err, host) {
-        msg.appMsg('SSLLabs test was done');
+      msg.appMsg("Starting SSLLabs test");
+      ssllabs.scan(url, function (err, host) {
+        msg.appMsg("SSLLabs test was done");
         const result = {
-          summary: '',
+          summary: "",
           grades: [],
           value: host,
           score: 0,
-          weight: 1
+          weight: 1,
         };
         const gradeScores = {
-          'A+': 100,
-          'A': 80,
-          'B': 65,
-          'C': 50,
-          'D': 35,
-          'E': 20,
-          'F': 10
+          "A+": 100,
+          A: 80,
+          B: 65,
+          C: 50,
+          D: 35,
+          E: 20,
+          F: 10,
         };
         if (err || !host) {
           return resolve(result);
         }
-        host.endpoints.forEach(function(endpoint) {
+        host.endpoints.forEach(function (endpoint) {
           if (!endpoint.grade) {
             return;
           }
-          result.score += gradeScores[endpoint.grade] ? gradeScores[endpoint.grade] : 0;
+          result.score += gradeScores[endpoint.grade]
+            ? gradeScores[endpoint.grade]
+            : 0;
           result.grades.push(endpoint.grade);
         });
-        result.score = result.grades.length ? result.score / result.grades.length : 0;
+        result.score = result.grades.length
+          ? result.score / result.grades.length
+          : 0;
         result.impact = result.score * result.weight;
-        result.summary = !result.grades.length ? 'No SSL certificate detected' : '';
+        result.summary = !result.grades.length
+          ? "No SSL certificate detected"
+          : "";
         resolve(result);
       });
     };
@@ -185,27 +203,30 @@ module.exports = function AdvancedSEOChecker(uri, opts) {
       if (options.ignoreSitemapTest) {
         return resolve();
       }
-      msg.appMsg('Sitemap testing..');
-      urlExists(normalizeUrl(url) + '/sitemap.xml')
-        .then(function(response) {
-          msg.appMsg('Sitemap test was done');
+      msg.appMsg("Sitemap testing..");
+      urlExists(normalizeUrl(url) + "/sitemap.xml")
+        .then(function (response) {
+          msg.appMsg("Sitemap test was done");
           const exists = response ? true : false;
           resolve({
-            summary: !exists ? 'Sitemap.xml not found' : 'Sitemap.xml was found',
+            summary: !exists
+              ? "Sitemap.xml not found"
+              : "Sitemap.xml was found",
             value: exists,
             weight: 1,
             score: exists ? 100 : 0,
-            impact: !exists ? 100 : 0
+            impact: !exists ? 100 : 0,
           });
-        }).catch(function(err) {
+        })
+        .catch(function (err) {
           resolve({
-            summary: 'Sitemap.xml not found',
+            summary: "Sitemap.xml not found",
             value: false,
             weight: 1,
             score: 0,
-            impact: 100
+            impact: 100,
           });
-        });;
+        });
     };
     let promise = new Promise(init);
     return promise;
@@ -216,25 +237,26 @@ module.exports = function AdvancedSEOChecker(uri, opts) {
       if (options.ignoreRobotsTest) {
         return resolve();
       }
-      msg.appMsg('robots testing..');
-      urlExists(normalizeUrl(url) + '/robots.xml')
-        .then(function(response) {
-          msg.appMsg('robots test was done');
+      msg.appMsg("robots testing..");
+      urlExists(normalizeUrl(url) + "/robots.xml")
+        .then(function (response) {
+          msg.appMsg("robots test was done");
           const exists = response ? true : false;
           resolve({
-            summary: !exists ? 'Robots.txt not found' : 'Robots.txt was found',
+            summary: !exists ? "Robots.txt not found" : "Robots.txt was found",
             value: exists,
             weight: 1,
             score: exists ? 100 : 0,
-            impact: !exists ? 100 : 0
+            impact: !exists ? 100 : 0,
           });
-        }).catch(function(err) {
+        })
+        .catch(function (err) {
           resolve({
-            summary: 'Robots.txt not found',
+            summary: "Robots.txt not found",
             value: false,
             weight: 1,
             score: 0,
-            impact: 100
+            impact: 100,
           });
         });
     };
@@ -243,10 +265,10 @@ module.exports = function AdvancedSEOChecker(uri, opts) {
   };
 
   const emitError = (code, url) => {
-    emitter.emit('error', {
+    emitter.emit("error", {
       code,
       message: http.STATUS_CODES[code],
-      url
+      url,
     });
   };
 
@@ -254,6 +276,6 @@ module.exports = function AdvancedSEOChecker(uri, opts) {
     on: emitter.on,
     off: emitter.off,
     load,
-    analyze
-  }
+    analyze,
+  };
 };
